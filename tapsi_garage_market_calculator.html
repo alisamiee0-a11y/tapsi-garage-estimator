@@ -1,0 +1,216 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>html{color-scheme:light}body{margin:0}</style>
+<title>ماشین‌حساب ترافیک ارگانیک</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;700&display=swap">
+<style>
+/* Layout: inputs as a quiet hairline list on the right, one result panel on the left (RTL). Single accent (amber), deck palette navy/cream/amber/teal. */
+:root{
+  --bg:#F7F6F2; --surface:#FFFFFF; --ink:#14243A; --muted:#6A7179; --line:#E3E1DA;
+  --accent:#E8A33D; --accent-ink:#9A6410; --accent-soft:#FBF1DD; --good:#2E7D8F;
+  --font:'Vazirmatn',Tahoma,system-ui,sans-serif;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#0F1B2D; --surface:#16253A; --ink:#EAEFF5; --muted:#98A6B8; --line:#26364D;
+  --accent:#E8A33D; --accent-ink:#F0B556; --accent-soft:#2A2A2C; --good:#5BB5C6; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0F1B2D; --surface:#16253A; --ink:#EAEFF5; --muted:#98A6B8; --line:#26364D;
+  --accent:#E8A33D; --accent-ink:#F0B556; --accent-soft:#2A2A2C; --good:#5BB5C6; color-scheme:dark}
+
+*{box-sizing:border-box}
+html{direction:rtl}
+body{background:var(--bg);color:var(--ink);font-family:var(--font);font-size:15px;line-height:1.7;
+  padding-inline:20px;padding-block:40px 96px;font-variant-numeric:tabular-nums}
+.wrap{max-width:1000px;margin-inline:auto}
+h1{font-size:28px;font-weight:700;line-height:1.3;margin:0;text-wrap:balance}
+.sub{color:var(--muted);margin:6px 0 0;font-size:14px}
+.grid{display:grid;grid-template-columns:minmax(0,1fr);gap:32px;margin-top:40px}
+@media (min-width:860px){.grid{grid-template-columns:minmax(0,1fr) 380px;gap:56px;align-items:start}}
+
+.row{padding-block:22px;border-top:1px solid var(--line)}
+.row:first-child{border-top:0;padding-top:0}
+.lab{display:flex;justify-content:space-between;align-items:baseline;gap:12px;margin-bottom:12px}
+.lab b{font-weight:500;font-size:15px}
+.lab span{color:var(--muted);font-size:13px}
+.static{display:flex;align-items:baseline;gap:10px}
+.static strong{font-size:28px;font-weight:300;line-height:1.2}
+.static small{color:var(--muted);font-size:13px}
+
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip,.seg button,.step button{font:inherit;color:inherit;cursor:pointer}
+.chip{padding:5px 14px;border-radius:999px;border:1px solid var(--line);background:transparent;font-size:14px;line-height:1.6}
+.chip:hover{border-color:var(--muted)}
+.chip[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+
+.step{display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:12px;overflow:hidden}
+.step button{width:44px;height:44px;border:0;background:transparent;font-size:20px;line-height:1}
+.step button:hover{background:var(--surface)}
+.step output{min-width:72px;text-align:center;font-size:20px;font-weight:500;padding-inline:8px}
+.hint{color:var(--muted);font-size:13px;margin-inline-start:14px}
+
+.seg{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));border:1px solid var(--line);border-radius:12px;overflow:hidden}
+.seg button{border:0;border-inline-start:1px solid var(--line);background:transparent;padding:10px 4px;text-align:center;line-height:1.5}
+.seg button:first-child{border-inline-start:0}
+.seg button:hover{background:var(--surface)}
+.seg button[aria-checked="true"]{background:var(--ink);color:var(--bg)}
+.seg b{display:block;font-weight:500;font-size:14px}
+.seg small{display:block;font-size:12px;opacity:.7}
+
+input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:24px;background:transparent;margin:0;cursor:pointer}
+input[type=range]::-webkit-slider-runnable-track{height:3px;border-radius:2px;background:linear-gradient(to left,var(--ink) var(--p),var(--line) var(--p))}
+input[type=range]::-moz-range-track{height:3px;border-radius:2px;background:var(--line)}
+input[type=range]::-moz-range-progress{height:3px;border-radius:2px;background:var(--ink)}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:20px;height:20px;border-radius:50%;background:var(--bg);border:2px solid var(--ink);margin-top:-8.5px}
+input[type=range]::-moz-range-thumb{width:16px;height:16px;border-radius:50%;background:var(--bg);border:2px solid var(--ink)}
+.val{font-size:28px;font-weight:300;line-height:1.2}
+
+button:focus-visible,input:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+.result{background:var(--surface);border:1px solid var(--line);border-radius:20px;padding:28px 26px}
+@media (min-width:860px){.result{position:sticky;top:24px}}
+.cap{color:var(--muted);font-size:13px;margin:0}
+.big{font-size:64px;font-weight:300;line-height:1.1;letter-spacing:-.01em;margin:6px 0 4px}
+.big small{font-size:15px;font-weight:400;color:var(--muted);letter-spacing:0;margin-inline-start:8px}
+.delta{margin:0;font-size:14px;color:var(--muted)}
+.delta em{font-style:normal;color:var(--good);font-weight:500}
+.hr{height:1px;background:var(--line);margin:24px 0 18px}
+.riv{margin-top:16px}
+.riv .t{display:flex;justify-content:space-between;align-items:baseline;gap:8px;font-size:14px}
+.riv .t b{font-weight:500;direction:ltr}
+.riv .t span{color:var(--muted);font-size:12px}
+.track{height:4px;border-radius:2px;background:var(--line);margin:8px 0 6px;overflow:hidden}
+.track i{display:block;height:100%;background:var(--accent);border-radius:2px;transition:width .35s ease}
+.track i.win{background:var(--good)}
+.riv p{margin:0;font-size:13px;color:var(--ink)}
+.warn{margin:16px 0 0;font-size:12px;color:var(--accent-ink)}
+.src{margin:44px 0 0;color:var(--muted);font-size:12px}
+
+.mbar{position:fixed;inset-inline:0;bottom:0;background:var(--surface);border-top:1px solid var(--line);
+  padding:12px 20px calc(12px + env(safe-area-inset-bottom,0px));display:flex;justify-content:space-between;align-items:baseline;gap:12px}
+.mbar span{color:var(--muted);font-size:13px}
+.mbar b{font-size:20px;font-weight:500}
+@media (min-width:860px){.mbar{display:none}}
+@media (max-width:859px){.result{margin-bottom:8px}.big{font-size:52px}}
+@media (prefers-reduced-motion:reduce){.track i{transition:none}}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <header>
+    <h1>ماشین‌حساب ترافیک ارگانیک</h1>
+    <p class="sub">جستجوی ماهانه × ضریب × درصد صفحات × نرخ کلیک رتبه</p>
+  </header>
+
+  <div class="grid">
+    <section class="inputs" aria-label="ورودی‌ها">
+      <div class="row">
+        <div class="lab"><b>ترافیک امروز</b><span>ماهانه، غیربرند</span></div>
+        <div class="static"><strong>۱۳۸</strong><small>کلیک در ماه، Search Console</small></div>
+      </div>
+
+      <div class="row">
+        <div class="lab"><b>دسته</b><span id="vol"></span></div>
+        <div class="chips" id="cats" role="group" aria-label="دسته"></div>
+      </div>
+
+      <div class="row">
+        <div class="lab"><b>ضریب</b><span>پیش‌فرض ۵</span></div>
+        <div style="display:flex;align-items:center;flex-wrap:wrap">
+          <div class="step" role="group" aria-label="ضریب">
+            <button type="button" id="mUp" aria-label="افزایش ضریب">+</button>
+            <output id="mVal" for="mUp mDn">۵</output>
+            <button type="button" id="mDn" aria-label="کاهش ضریب">−</button>
+          </div>
+          <span class="hint" id="mHint"></span>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="lab"><b>میانگین رتبه</b><span>نرخ کلیک تخمینی هر بازه</span></div>
+        <div class="seg" id="bands" role="radiogroup" aria-label="میانگین رتبه"></div>
+      </div>
+
+      <div class="row">
+        <div class="lab"><b>درصد صفحات ساخته‌شده</b></div>
+        <div class="val" id="covVal"></div>
+        <input type="range" id="cov" min="0" max="100" step="5" value="35" aria-label="درصد صفحات ساخته‌شده">
+      </div>
+    </section>
+
+    <aside class="result" aria-live="polite">
+      <p class="cap">کلیک ماهانهٔ غیربرند پس از اجرا</p>
+      <div class="big"><span id="total">۰</span><small>کلیک</small></div>
+      <p class="delta" id="delta"></p>
+      <div class="hr"></div>
+      <p class="cap">فاصلهٔ جبران‌شده با دو رقیب پرترافیک</p>
+      <div id="rivals"></div>
+      <p class="warn" id="warn" hidden>مقایسه با رقبا فقط در ضریب ۵ هم‌مقیاس است.</p>
+    </aside>
+  </div>
+
+  <p class="src">تپسی‌گاراژ · بستهٔ کلمات کلیدی نسخهٔ ۳٫۰ (۶ اکتبر ۲۰۲۶) · کلیک رقبا تخمین ابزار تحلیل رقباست</p>
+</div>
+
+<div class="mbar"><span>پس از اجرا</span><b id="mTotal">۰</b></div>
+
+<script>
+var CATS=[['همه',336070],['لوازم یدکی',138190],['لاستیک',57430],['روغن',40570],['باتری',29840],['خدمات و سایر',29780],['موتورسیکلت',15280],['رینگ و قالپاق',15130],['لوازم جانبی',9850]];
+var BANDS=[['رتبه ۱ تا ۳',.18],['رتبه ۳ تا ۶',.08],['رتبه ۶ تا ۱۰',.035],['رتبه ۱۰ به بالا',.012]];
+var RIV=[['yadakmarket.com',33402],['automoby.ir',28819]];
+var TODAY=138,cat=0,band=3,mult=5,shown=0,raf=0;
+var $=function(id){return document.getElementById(id)};
+function fa(n){return Math.round(n).toLocaleString('fa-IR')}
+function fp(x){return (x*100).toLocaleString('fa-IR',{maximumFractionDigits:1})+'٪'}
+var still=window.matchMedia&&matchMedia('(prefers-reduced-motion:reduce)').matches;
+
+CATS.forEach(function(c,i){
+  var b=document.createElement('button');b.type='button';b.className='chip';b.textContent=c[0];
+  b.setAttribute('aria-pressed',i===cat);
+  b.onclick=function(){cat=i;[].forEach.call($('cats').children,function(x,j){x.setAttribute('aria-pressed',j===i)});calc()};
+  $('cats').appendChild(b)});
+BANDS.forEach(function(r,i){
+  var b=document.createElement('button');b.type='button';b.setAttribute('role','radio');b.setAttribute('aria-checked',i===band);
+  b.innerHTML='<b>'+r[0].replace('رتبه ','')+'</b><small>'+fp(r[1])+'</small>';
+  b.onclick=function(){band=i;[].forEach.call($('bands').children,function(x,j){x.setAttribute('aria-checked',j===i)});calc()};
+  $('bands').appendChild(b)});
+$('mUp').onclick=function(){mult=Math.min(10,mult+.5);calc()};
+$('mDn').onclick=function(){mult=Math.max(1,mult-.5);calc()};
+$('cov').oninput=calc;
+
+function tween(to){
+  cancelAnimationFrame(raf);
+  if(still){shown=to;paint();return}
+  var from=shown,t0=performance.now();
+  (function f(t){var k=Math.min(1,(t-t0)/380);k=1-Math.pow(1-k,3);shown=from+(to-from)*k;paint();if(k<1)raf=requestAnimationFrame(f)})(t0);
+}
+function paint(){$('total').textContent=fa(shown);$('mTotal').textContent=fa(shown)+' کلیک در ماه'}
+
+function calc(){
+  var raw=CATS[cat][1],cov=+$('cov').value;
+  $('vol').textContent='جستجوی ماهانهٔ خام: '+fa(raw);
+  $('covVal').textContent=fa(cov)+'٪';
+  $('cov').style.setProperty('--p',cov+'%');
+  $('mVal').textContent=mult.toLocaleString('fa-IR',{maximumFractionDigits:1});
+  $('mHint').textContent=mult===5?'':'پیش‌فرض ۵';
+  var add=raw*mult*(cov/100)*BANDS[band][1],total=TODAY+add;
+  tween(total);
+  $('delta').innerHTML='امروز '+fa(TODAY)+' · <em>+'+fa(add)+' کلیک، حدود '+fa(total/TODAY)+' برابر</em>';
+  var h='';
+  RIV.forEach(function(r){
+    var closed=add/(r[1]-TODAY),win=closed>=1;
+    h+='<div class="riv"><div class="t"><b>'+r[0]+'</b><span>'+fa(r[1])+' کلیک تخمینی</span></div>'+
+       '<div class="track"><i class="'+(win?'win':'')+'" style="width:'+Math.min(100,closed*100)+'%"></i></div>'+
+       '<p>'+(win?'از این رقیب جلو می‌افتیم':fp(closed)+' از فاصله جبران می‌شود')+'</p></div>'});
+  $('rivals').innerHTML=h;
+  $('warn').hidden=mult===5;
+}
+calc();
+</script>
+</body>
+</html>
